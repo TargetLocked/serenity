@@ -140,9 +140,9 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 			extraTags := common.Filter(common.FlatMap(subscriptions, func(it *subscription.Subscription) []string {
 				return common.Map(it.Servers, outboundToString)
 			}), myFilter)
-			if len(extraTags) == 0 {
-				continue
-			}
+			// if len(extraTags) == 0 {
+			// 	continue
+			// }
 			groupOutbound := boxOption.Outbound{
 				Tag:             extraGroup.Tag,
 				Type:            extraGroup.Type,

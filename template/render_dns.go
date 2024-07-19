@@ -8,7 +8,7 @@ import (
 	"github.com/sagernet/serenity/common/semver"
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing-dns"
+	dns "github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing/common"
 	BM "github.com/sagernet/sing/common/metadata"
 
@@ -95,7 +95,7 @@ func (t *Template) renderDNS(metadata M.Metadata, options *option.Options) error
 	if t.EnableFakeIP {
 		options.DNS.FakeIP = &option.DNSFakeIPOptions{
 			Enabled:    true,
-			Inet4Range: common.Ptr(netip.MustParsePrefix("198.18.0.0/15")),
+			Inet4Range: common.Ptr(netip.MustParsePrefix("28.0.0.0/8")),
 		}
 		if !t.DisableIPv6() {
 			options.DNS.FakeIP.Inet6Range = common.Ptr(netip.MustParsePrefix("fc00::/18"))
