@@ -135,7 +135,7 @@ Default DNS server.
 
 DNS server used for China DNS requests.
 
-`114.114.114.114` is used by default.
+`https://223.5.5.5/dns-query` is used by default.
 
 #### enable_fakeip
 
