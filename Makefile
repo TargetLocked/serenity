@@ -1,7 +1,7 @@
 NAME = serenity
 COMMIT = $(shell git rev-parse --short HEAD)
 TAG = $(shell git describe --tags --always)
-VERSION = $(TAG:v%=%)
+VERSION = $(TAG:v%=%)+dance-crate
 
 PARAMS = -v -trimpath -ldflags "-X 'github.com/sagernet/serenity/constant.Version=$(VERSION)' -s -w -buildid="
 MAIN_PARAMS = $(PARAMS)
