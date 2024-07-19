@@ -3,6 +3,7 @@ package template
 import (
 	"bytes"
 	"regexp"
+	"strings"
 	"text/template"
 
 	M "github.com/sagernet/serenity/common/metadata"
@@ -63,6 +64,9 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 		}
 		globalOutboundTags = common.Map(outbounds, func(it []boxOption.Outbound) string {
 			return it[0].Tag
+		})
+		globalOutboundTags = common.Filter(globalOutboundTags, func(it string) bool {
+			return !strings.HasPrefix(it, "$HIDDEN$")
 		})
 	}
 
