@@ -122,9 +122,8 @@ func (t *Template) renderRuleSet(ruleSets []option.RuleSet) []boxOption.RuleSet 
 					Format: C.RuleSetFormatBinary,
 					RemoteOptions: boxOption.RemoteRuleSet{
 						URL: downloadURL +
-							ruleSet.GitHubOptions.Repository +
-							branchSplit +
-							ruleSet.GitHubOptions.Path +
+							ruleSet.GitHubOptions.Repository + branchSplit +
+							ruleSet.GitHubOptions.Path + "/" +
 							code + ".srs",
 						DownloadDetour: downloadDetour,
 					},
