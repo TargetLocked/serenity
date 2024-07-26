@@ -8,7 +8,7 @@ MAIN_PARAMS = $(PARAMS)
 MAIN = ./cmd/serenity
 PREFIX ?= $(shell go env GOPATH)
 
-.PHONY: release docs
+.PHONY: release docs upgrade diff push upgrade-mod
 
 build:
 	go build $(MAIN_PARAMS) $(MAIN)
@@ -69,3 +69,21 @@ update:
 	git fetch
 	git reset FETCH_HEAD --hard
 	git clean -fdx
+
+diff:
+	git fetch upstream
+	git diff origin/dev..upstream/dev
+
+upgrade:
+	git fetch upstream
+	git branch -f dev upstream/dev
+	git rebase origin/dev dance-crate --onto upstream/dev
+
+upgrade-mod:
+	sed -Ei 's=(targetlocked/sing-box).*$$=\1 $(shell make -sC ../sing-box modver)=i' ./go.mod
+	sed -Ei 's=(targetlocked/sing-dns).*$$=\1 $(shell make -sC ../sing-dns modver)=i' ./go.mod
+	go mod tidy
+
+push:
+	git push -f origin dev
+	git push -f origin dance-crate
