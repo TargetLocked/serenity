@@ -3,7 +3,7 @@ package option
 import (
 	C "github.com/sagernet/serenity/constant"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing-dns"
+	dns "github.com/sagernet/sing-dns"
 	E "github.com/sagernet/sing/common/exceptions"
 	"github.com/sagernet/sing/common/json"
 )
@@ -137,6 +137,8 @@ type ExtraGroup struct {
 	Exclude            option.Listable[string]         `json:"exclude,omitempty"`
 	CustomSelector     *option.SelectorOutboundOptions `json:"custom_selector,omitempty"`
 	CustomURLTest      *option.URLTestOutboundOptions  `json:"custom_urltest,omitempty"`
+
+	IncludeProfileOutbounds bool `json:"include_profile_outbounds,omitempty"`
 }
 
 type ExtraGroupTarget uint8

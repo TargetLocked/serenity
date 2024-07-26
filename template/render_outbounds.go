@@ -144,6 +144,10 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 			extraTags := common.Filter(common.FlatMap(subscriptions, func(it *subscription.Subscription) []string {
 				return common.Map(it.Servers, outboundToString)
 			}), myFilter)
+			if extraGroup.IncludeProfileOutbounds {
+				// target==default is ensured in template/manager.go:NewManager
+				extraTags = append(extraTags, common.Filter(globalOutboundTags, myFilter)...)
+			}
 			// if len(extraTags) == 0 {
 			// 	continue
 			// }

@@ -42,7 +42,8 @@
       "filter": "",
       "exclude": "",
       "custom_selector": {},
-      "custom_urltest": {}
+      "custom_urltest": {},
+      "include_profile_outbounds": false
     }
   ],
   "direct_tag": "",
@@ -224,6 +225,12 @@ Custom [Selector](https://sing-box.sagernet.org/configuration/outbound/selector/
 #### extra_groups.custom_urltest
 
 Custom [URLTest](https://sing-box.sagernet.org/configuration/outbound/urltest/) template.
+
+#### extra_groups.include_profile_outbounds
+
+Include outbounds from profile in the group.
+
+If enabled, `extra_groups.target` must be `default`.
 
 #### direct_tag
 
