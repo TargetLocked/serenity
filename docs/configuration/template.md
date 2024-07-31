@@ -18,6 +18,7 @@
 
   "dns": "",
   "dns_local": "",
+  "extra_dns_servers": [],
   "enable_fakeip": false,
   "pre_dns_rules": [],
   "custom_dns_rules": [],
@@ -137,6 +138,10 @@ Default DNS server. Domain will be resolved by `dns_local`.
 DNS server used for China DNS requests. Domain will be resolved by `114.114.114.114`.
 
 `https://223.5.5.5/dns-query` is used by default.
+
+#### extra_dns_servers
+
+List of [DNS Server](https://sing-box.sagernet.org/configuration/dns/server) to be included.
 
 #### enable_fakeip
 
