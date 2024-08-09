@@ -18,10 +18,17 @@ func filterDc(metadata metadata.Metadata, options *option.Options) error {
 		if outbound.Type == C.TypeURLTest {
 			filterDcUrltestInplace(&options.Outbounds[idx].URLTestOptions)
 		}
+		if outbound.Type == C.TypeWireGuard {
+			filterDcWireGuardInplace(&options.Outbounds[idx].WireGuardOptions)
+		}
 	}
 	return nil
 }
 
 func filterDcUrltestInplace(o *option.URLTestOutboundOptions) {
 	o.MaxSuccessiveFailures = 0
+}
+
+func filterDcWireGuardInplace(o *option.WireGuardOutboundOptions) {
+	o.IdleTimeout = 0
 }
