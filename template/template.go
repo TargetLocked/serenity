@@ -8,6 +8,7 @@ import (
 	"github.com/sagernet/serenity/subscription"
 	"github.com/sagernet/serenity/template/filter"
 	boxOption "github.com/sagernet/sing-box/option"
+	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 )
 
@@ -42,6 +43,9 @@ type ExtraGroup struct {
 func (t *Template) Render(metadata M.Metadata, profileName string, outbounds [][]boxOption.Outbound, subscriptions []*subscription.Subscription) (*boxOption.Options, error) {
 	var options boxOption.Options
 	options.Log = t.Log
+	outbounds = common.Filter(outbounds, func(it []boxOption.Outbound) bool {
+		return !common.Contains(t.ExcludeProfileOutbounds, it[0].Tag)
+	})
 	err := t.renderDNS(metadata, &options)
 	if err != nil {
 		return nil, E.Cause(err, "render dns")

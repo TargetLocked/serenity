@@ -53,6 +53,7 @@
   "custom_direct": {},
   "custom_selector": {},
   "custom_urltest": {},
+  "exclude_profile_outbounds": [],
   
   // Route
 
@@ -233,7 +234,7 @@ Custom [URLTest](https://sing-box.sagernet.org/configuration/outbound/urltest/) 
 
 #### extra_groups.include_profile_outbounds
 
-Include outbounds from profile in the group.
+Include all outbounds from profile in the group.
 
 If enabled, `extra_groups.target` must be `default`.
 
@@ -260,6 +261,10 @@ Custom [Selector](https://sing-box.sagernet.org/configuration/outbound/selector/
 #### custom_urltest
 
 Custom [URLTest](https://sing-box.sagernet.org/configuration/outbound/urltest/) outbound template.
+
+#### exclude_profile_outbounds
+
+List containing tags of profile outbounds to be removed.
 
 #### pre_rules
 

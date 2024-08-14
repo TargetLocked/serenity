@@ -49,6 +49,8 @@ type _Template struct {
 	CustomSelector *option.SelectorOutboundOptions `json:"custom_selector,omitempty"`
 	CustomURLTest  *option.URLTestOutboundOptions  `json:"custom_urltest,omitempty"`
 
+	ExcludeProfileOutbounds option.Listable[string] `json:"exclude_profile_outbounds,omitempty"`
+
 	// Route
 	DisableDefaultRules bool                   `json:"disable_default_rules,omitempty"`
 	PreRules            []option.Rule          `json:"pre_rules,omitempty"`
