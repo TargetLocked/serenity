@@ -88,7 +88,7 @@ func (t *Template) renderDNS(metadata M.Metadata, options *option.Options) error
 	if localDNSIsDomain {
 		options.DNS.Servers = append(options.DNS.Servers, option.DNSServerOptions{
 			Tag:      DNSLocalSetupTag,
-			Address:  "114.114.114.114",
+			Address:  "https://223.5.5.5/dns-query",
 			Detour:   directTag,
 			Strategy: domainStrategyLocal,
 		})

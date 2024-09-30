@@ -136,7 +136,7 @@ Default DNS server. Domain will be resolved by `dns_local`.
 
 #### dns_local
 
-DNS server used for China DNS requests. Domain will be resolved by `114.114.114.114`.
+DNS server used for China DNS requests. Domain will be resolved by `https://223.5.5.5/dns-query`.
 
 `https://223.5.5.5/dns-query` is used by default.
 
