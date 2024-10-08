@@ -157,11 +157,16 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 				SelectorOptions: common.PtrValueOrDefault(extraGroup.CustomSelector),
 				URLTestOptions:  common.PtrValueOrDefault(extraGroup.CustomURLTest),
 			}
+			var groupOptionOutbounds *[]string
 			switch extraGroup.Type {
 			case C.TypeSelector:
-				groupOutbound.SelectorOptions.Outbounds = append(groupOutbound.SelectorOptions.Outbounds, extraTags...)
+				groupOptionOutbounds = &groupOutbound.SelectorOptions.Outbounds
 			case C.TypeURLTest:
-				groupOutbound.URLTestOptions.Outbounds = append(groupOutbound.URLTestOptions.Outbounds, extraTags...)
+				groupOptionOutbounds = &groupOutbound.URLTestOptions.Outbounds
+			}
+			*groupOptionOutbounds = append(*groupOptionOutbounds, extraTags...)
+			if len(*groupOptionOutbounds) == 0 {
+				*groupOptionOutbounds = []string{blockTag}
 			}
 			if extraGroup.Target == option.ExtraGroupTargetDefault {
 				defaultGroups = append(defaultGroups, groupOutbound)
