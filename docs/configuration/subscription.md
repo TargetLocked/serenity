@@ -106,13 +106,13 @@ Subscription update interval.
 
 Generate a global `Selector` outbound for the subscription.
 
-If both `generate_selector` and `generate_urltest` are disabled, subscription outbounds will be added to global groups.
+If both `generate_selector` and `generate_urltest` are disabled, subscription outbounds will NOT be added to global groups.
 
 #### generate_urltest
 
 Generate a global `URLTest` outbound for the subscription.
 
-If both `generate_selector` and `generate_urltest` are disabled, subscription outbounds will be added to global groups.
+If both `generate_selector` and `generate_urltest` are disabled, subscription outbounds will NOT be added to global groups.
 
 #### urltest_suffix
 

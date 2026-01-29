@@ -118,9 +118,6 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 			allGroups = append(allGroups, urltestOutbound)
 			groupTags = append(groupTags, urltestOutbound.Tag)
 		}
-		if !it.GenerateSelector && !it.GenerateURLTest {
-			globalOutboundTags = append(globalOutboundTags, joinOutbounds...)
-		}
 		allGroupOutbounds = append(allGroupOutbounds, it.Servers...)
 	}
 
