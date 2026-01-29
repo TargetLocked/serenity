@@ -9,7 +9,7 @@ import (
 	"github.com/sagernet/serenity/common/semver"
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing-dns"
+	dns "github.com/sagernet/sing-dns"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/json/badoption"
 	BM "github.com/sagernet/sing/common/metadata"
@@ -76,7 +76,6 @@ func (t *Template) renderDNS(ctx context.Context, metadata M.Metadata, options *
 		defaultDNSOptions.Options.(*option.LegacyDNSServerOptions).Detour = defaultTag
 		defaultDNSOptions.Upgrade(ctx)
 	}
-	options.DNS.Servers = append(options.DNS.Servers, defaultDNSOptions)
 	var (
 		localDNSOptions  option.DNSServerOptions
 		localDNSIsDomain bool
@@ -100,23 +99,20 @@ func (t *Template) renderDNS(ctx context.Context, metadata M.Metadata, options *
 				Strategy: domainStrategyLocal,
 			},
 		}
-		if BM.IsDomainName(dnsLocal) {
-			localDNSIsDomain = true
-		} else if dnsLocalUrl, err := url.Parse(dnsLocal); err == nil {
+		if dnsLocalUrl, err := url.Parse(dnsLocal); err == nil && BM.IsDomainName(dnsLocalUrl.Hostname()) {
 			switch dnsLocalUrl.Scheme {
 			case "tcp", "udp", "tls", "https", "quic", "h3":
 				localDNSIsDomain = true
 			}
 		}
 		if localDNSIsDomain {
-			defaultDNSOptions.Options.(*option.LegacyDNSServerOptions).AddressResolver = DNSLocalSetupTag
+			localDNSOptions.Options.(*option.LegacyDNSServerOptions).AddressResolver = DNSLocalSetupTag
 		}
 	}
 	if newDNSServers {
 		localDNSOptions.Options.(*option.LegacyDNSServerOptions).Detour = ""
 		localDNSOptions.Upgrade(ctx)
 	}
-	options.DNS.Servers = append(options.DNS.Servers, localDNSOptions)
 	if localDNSIsDomain {
 		if newDNSServers {
 			options.DNS.Servers = append(options.DNS.Servers, option.DNSServerOptions{
@@ -130,11 +126,14 @@ func (t *Template) renderDNS(ctx context.Context, metadata M.Metadata, options *
 				Tag:  DNSLocalSetupTag,
 				Options: &option.LegacyDNSServerOptions{
 					Address:  "local",
+					// Detour:   directTag, // this is needed only for non-local servers
 					Strategy: domainStrategyLocal,
 				},
 			})
 		}
 	}
+	options.DNS.Servers = append(options.DNS.Servers, localDNSOptions)
+	options.DNS.Servers = append(options.DNS.Servers, defaultDNSOptions)
 	if t.EnableFakeIP {
 		if newDNSServers {
 			var inet4Range, inet6Range *badoption.Prefix

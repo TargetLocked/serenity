@@ -134,15 +134,15 @@ Don't generate `doamin_strategy` options for inbounds.
 
 #### dns
 
-Default DNS server.
+Default DNS server. Address will be resolved by `dns_local`, note that plain domain name without `udp://` prefix is unsupported.
 
 `tls://8.8.8.8` is used by default.
 
 #### dns_local
 
-DNS server used for China DNS requests.
+DNS server used for China DNS requests. Address will be resolved by `local`, note that plain domain name without `udp://` prefix is unsupported.
 
-`114.114.114.114` is used by default.
+`https://223.5.5.5/dns-query` is used by default.
 
 #### dns_servers
 
