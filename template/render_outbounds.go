@@ -44,14 +44,14 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 			Type:    C.TypeSelector,
 			Options: common.Ptr(common.PtrValueOrDefault(t.CustomSelector)),
 		},
+		{
+			Tag:     blockTag,
+			Type:    C.TypeBlock,
+			Options: &boxOption.StubOptions{},
+		},
 	}
 	if disableRuleAction {
 		options.Outbounds = append(options.Outbounds,
-			boxOption.Outbound{
-				Tag:     blockTag,
-				Type:    C.TypeBlock,
-				Options: &boxOption.StubOptions{},
-			},
 			boxOption.Outbound{
 				Tag:     DNSTag,
 				Type:    C.TypeDNS,
