@@ -207,6 +207,10 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 		for _, group := range subscriptionGroups {
 			extraTags = append(extraTags, common.Map(group, outboundToString)...)
 		}
+		if extraGroup.IncludeProfileOutbounds {
+			// target==default is ensured in template/manager.go:NewManager
+			extraTags = append(extraTags, globalOutboundTags...)
+		}
 		sort.Strings(extraTags)
 		if len(extraTags) == 0 || extraGroup.filter != nil || extraGroup.exclude != nil {
 			extraTags = append(extraTags, common.Filter(common.FlatMap(subscriptions, func(it *subscription.Subscription) []string {

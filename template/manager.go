@@ -78,6 +78,9 @@ func NewManager(ctx context.Context, logger logger.Logger, rawTemplates []option
 			default:
 				return nil, E.New("initialize template[", template.Name, "]: extra_group[", group.Tag, "]: invalid group type: ", group.Type)
 			}
+			if group.IncludeProfileOutbounds && group.Target != option.ExtraGroupTargetDefault {
+				return nil, E.New("initialize template[", template.Name, "]: extra_group[", group.Tag, "]: include_profile_outbounds: unsupported target: ", group.Target.String())
+			}
 			var (
 				filter  []*regexp.Regexp
 				exclude []*regexp.Regexp
