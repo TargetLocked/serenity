@@ -243,14 +243,14 @@ func (t *Template) renderOutbounds(metadata M.Metadata, options *boxOption.Optio
 			groupOutbound.Options = &selectorOptions
 			selectorOptions.Outbounds = common.Uniq(append(selectorOptions.Outbounds, extraTags...))
 			if len(selectorOptions.Outbounds) == 0 {
-				continue
+				selectorOptions.Outbounds = []string{blockTag}
 			}
 		case C.TypeURLTest:
 			urltestOptions := common.PtrValueOrDefault(extraGroup.CustomURLTest)
 			groupOutbound.Options = &urltestOptions
 			urltestOptions.Outbounds = common.Uniq(append(urltestOptions.Outbounds, extraTags...))
 			if len(urltestOptions.Outbounds) == 0 {
-				continue
+				urltestOptions.Outbounds = []string{blockTag}
 			}
 		}
 		if extraGroup.Target == option.ExtraGroupTargetDefault {

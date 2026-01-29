@@ -199,7 +199,7 @@ Custom [Mixed](https://sing-box.sagernet.org/configuration/inbound/mixed/) inbou
 
 #### extra_groups
 
-Generate extra outbound groups.
+Generate extra outbound groups. Empty groups will be generated with a single block outbound.
 
 #### extra_groups.tag
 
