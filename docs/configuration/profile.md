@@ -45,6 +45,8 @@ The value is the template name.
 
 Included outbounds.
 
+Outbounds with a tag prefixed by `$HIDDEN$` will not be added to the default groups.
+
 #### subscription
 
 Included subscriptions.
