@@ -91,3 +91,7 @@ func Detect(userAgent string) Metadata {
 	}
 	return metadata
 }
+
+func (m *Metadata) IsDanceCrate() bool {
+	return strings.Contains(m.UserAgent, "dance-crate")
+}
