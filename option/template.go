@@ -38,6 +38,8 @@ type _Template struct {
 	CustomDNSRules []option.DNSRule               `json:"custom_dns_rules,omitempty"`
 	CustomFakeIP   *option.FakeIPDNSServerOptions `json:"custom_fakeip,omitempty"`
 
+	DisableDNS bool `json:"disable_dns,omitempty"`
+
 	// Inbound
 	Inbounds           []option.Inbound                              `json:"inbounds,omitempty"`
 	AutoRedirect       bool                                          `json:"auto_redirect,omitempty"`

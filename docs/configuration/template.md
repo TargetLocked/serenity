@@ -17,6 +17,7 @@
   
   // DNS
 
+  "disable_dns": false,
   "dns": "",
   "dns_local": "",
   "dns_servers": [],
@@ -119,11 +120,11 @@ Local sing-box domain strategy.
 
 #### disable_sniff
 
-Don`t generate protocol sniffing options.
+Don't generate protocol sniffing options.
 
 #### disable_rule_action
 
-Don`t generate rule action options.
+Don't generate rule action options.
 
 #### disable_traffic_bypass
 
@@ -132,6 +133,10 @@ Disable traffic bypass for Chinese DNS queries and connections.
 #### remote_resolve
 
 Don't generate `doamin_strategy` options for inbounds.
+
+#### disable_dns
+
+Don't generate default DNS servers. `dns_servers` must include servers with tag `default` and `local`.
 
 #### dns
 

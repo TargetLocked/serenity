@@ -113,7 +113,7 @@ func (t *Template) renderDNS(ctx context.Context, metadata M.Metadata, options *
 		localDNSOptions.Options.(*option.LegacyDNSServerOptions).Detour = ""
 		localDNSOptions.Upgrade(ctx)
 	}
-	if localDNSIsDomain {
+	if !t.DisableDNS && localDNSIsDomain {
 		if newDNSServers {
 			options.DNS.Servers = append(options.DNS.Servers, option.DNSServerOptions{
 				Type:    C.DNSTypeLocal,
@@ -126,14 +126,15 @@ func (t *Template) renderDNS(ctx context.Context, metadata M.Metadata, options *
 				Tag:  DNSLocalSetupTag,
 				Options: &option.LegacyDNSServerOptions{
 					Address:  "local",
-					// Detour:   directTag, // this is needed only for non-local servers
 					Strategy: domainStrategyLocal,
 				},
 			})
 		}
 	}
-	options.DNS.Servers = append(options.DNS.Servers, localDNSOptions)
-	options.DNS.Servers = append(options.DNS.Servers, defaultDNSOptions)
+	if !t.DisableDNS {
+		options.DNS.Servers = append(options.DNS.Servers, localDNSOptions)
+		options.DNS.Servers = append(options.DNS.Servers, defaultDNSOptions)
+	}
 	if t.EnableFakeIP {
 		if newDNSServers {
 			var inet4Range, inet6Range *badoption.Prefix
