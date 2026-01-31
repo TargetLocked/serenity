@@ -3,6 +3,7 @@ package parser
 import (
 	"context"
 	"strings"
+	"time"
 
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
@@ -25,6 +26,15 @@ func ParseClashSubscription(_ context.Context, content string) ([]option.Outboun
 	}
 	decoder := structure.NewDecoder(structure.Option{TagName: "proxy", WeaklyTypedInput: true})
 	var outbounds []option.Outbound
+	parserMap := map[constant.AdapterType]clashProxyParser{
+		constant.Shadowsocks:  parseShadowsocks,
+		constant.ShadowsocksR: parseShadowsocksR,
+		constant.Trojan:       parseTrojan,
+		constant.Vmess:        parseVmess,
+		constant.Socks5:       parseSocks5,
+		constant.Http:         parseHttp,
+		constant.AnyTLS:       parseAnyTLS,
+	}
 	for i, proxyMapping := range config.Proxy {
 		proxy, err := adapter.ParseProxy(proxyMapping)
 		if err != nil {
@@ -32,136 +42,13 @@ func ParseClashSubscription(_ context.Context, content string) ([]option.Outboun
 		}
 		var outbound option.Outbound
 		outbound.Tag = proxy.Name()
-		switch proxy.Type() {
-		case constant.Shadowsocks:
-			ssOption := &clash_outbound.ShadowSocksOption{}
-			err = decoder.Decode(proxyMapping, ssOption)
-			if err != nil {
-				return nil, err
-			}
-			outbound.Type = C.TypeShadowsocks
-			outbound.Options = &option.ShadowsocksOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     ssOption.Server,
-					ServerPort: uint16(ssOption.Port),
-				},
-				Password:      ssOption.Password,
-				Method:        clashShadowsocksCipher(ssOption.Cipher),
-				Plugin:        clashPluginName(ssOption.Plugin),
-				PluginOptions: clashPluginOptions(ssOption.Plugin, ssOption.PluginOpts),
-				Network:       clashNetworks(ssOption.UDP),
-			}
-		case constant.ShadowsocksR:
-			ssrOption := &clash_outbound.ShadowSocksROption{}
-			err = decoder.Decode(proxyMapping, ssrOption)
-			if err != nil {
-				return nil, err
-			}
-			outbound.Type = C.TypeShadowsocksR
-			outbound.Options = &option.ShadowsocksROutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     ssrOption.Server,
-					ServerPort: uint16(ssrOption.Port),
-				},
-				Password:      ssrOption.Password,
-				Method:        clashShadowsocksCipher(ssrOption.Cipher),
-				Protocol:      ssrOption.Protocol,
-				ProtocolParam: ssrOption.ProtocolParam,
-				Obfs:          ssrOption.Obfs,
-				ObfsParam:     ssrOption.ObfsParam,
-				Network:       clashNetworks(ssrOption.UDP),
-			}
-		case constant.Trojan:
-			trojanOption := &clash_outbound.TrojanOption{}
-			err = decoder.Decode(proxyMapping, trojanOption)
-			if err != nil {
-				return nil, err
-			}
-			outbound.Type = C.TypeTrojan
-			outbound.Options = &option.TrojanOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     trojanOption.Server,
-					ServerPort: uint16(trojanOption.Port),
-				},
-				Password: trojanOption.Password,
-				OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
-					TLS: &option.OutboundTLSOptions{
-						Enabled:    true,
-						ALPN:       trojanOption.ALPN,
-						ServerName: trojanOption.SNI,
-						Insecure:   trojanOption.SkipCertVerify,
-					},
-				},
-				Transport: clashTransport(trojanOption.Network, clash_outbound.HTTPOptions{}, clash_outbound.HTTP2Options{}, trojanOption.GrpcOpts, trojanOption.WSOpts),
-				Network:   clashNetworks(trojanOption.UDP),
-			}
-		case constant.Vmess:
-			vmessOption := &clash_outbound.VmessOption{}
-			err = decoder.Decode(proxyMapping, vmessOption)
-			if err != nil {
-				return nil, err
-			}
-			outbound.Type = C.TypeVMess
-			outbound.Options = &option.VMessOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     vmessOption.Server,
-					ServerPort: uint16(vmessOption.Port),
-				},
-				UUID:     vmessOption.UUID,
-				Security: vmessOption.Cipher,
-				AlterId:  vmessOption.AlterID,
-				OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
-					TLS: &option.OutboundTLSOptions{
-						Enabled:    vmessOption.TLS,
-						ServerName: vmessOption.ServerName,
-						Insecure:   vmessOption.SkipCertVerify,
-					},
-				},
-				Transport: clashTransport(vmessOption.Network, vmessOption.HTTPOpts, vmessOption.HTTP2Opts, vmessOption.GrpcOpts, vmessOption.WSOpts),
-				Network:   clashNetworks(vmessOption.UDP),
-			}
-		case constant.Socks5:
-			socks5Option := &clash_outbound.Socks5Option{}
-			err = decoder.Decode(proxyMapping, socks5Option)
-			if err != nil {
-				return nil, err
-			}
-
-			if socks5Option.TLS {
-				// TODO: print warning
-				continue
-			}
-
-			outbound.Type = C.TypeSOCKS
-			outbound.Options = &option.SOCKSOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     socks5Option.Server,
-					ServerPort: uint16(socks5Option.Port),
-				},
-				Username: socks5Option.UserName,
-				Password: socks5Option.Password,
-				Network:  clashNetworks(socks5Option.UDP),
-			}
-		case constant.Http:
-			httpOption := &clash_outbound.HttpOption{}
-			err = decoder.Decode(proxyMapping, httpOption)
-			if err != nil {
-				return nil, err
-			}
-
-			if httpOption.TLS {
-				continue
-			}
-
-			outbound.Type = C.TypeHTTP
-			outbound.Options = &option.HTTPOutboundOptions{
-				ServerOptions: option.ServerOptions{
-					Server:     httpOption.Server,
-					ServerPort: uint16(httpOption.Port),
-				},
-				Username: httpOption.UserName,
-				Password: httpOption.Password,
-			}
+		parser, hasParser := parserMap[proxy.Type()]
+		if !hasParser {
+			continue
+		}
+		err = parser(decoder, proxy, proxyMapping, &outbound)
+		if err != nil {
+			return nil, E.Cause(err, "parse proxy ", i)
 		}
 		outbounds = append(outbounds, outbound)
 	}
@@ -169,6 +56,186 @@ func ParseClashSubscription(_ context.Context, content string) ([]option.Outboun
 		return outbounds, nil
 	}
 	return nil, E.New("no servers found")
+}
+
+type clashProxyParser func(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error
+
+func parseShadowsocks(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	ssOption := &clash_outbound.ShadowSocksOption{}
+	err := decoder.Decode(proxyMapping, ssOption)
+	if err != nil {
+		return err
+	}
+	outbound.Type = C.TypeShadowsocks
+	outbound.Options = &option.ShadowsocksOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     ssOption.Server,
+			ServerPort: uint16(ssOption.Port),
+		},
+		Password:      ssOption.Password,
+		Method:        clashShadowsocksCipher(ssOption.Cipher),
+		Plugin:        clashPluginName(ssOption.Plugin),
+		PluginOptions: clashPluginOptions(ssOption.Plugin, ssOption.PluginOpts),
+		Network:       clashNetworks(ssOption.UDP),
+	}
+	return nil
+}
+
+func parseShadowsocksR(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	ssrOption := &clash_outbound.ShadowSocksROption{}
+	err := decoder.Decode(proxyMapping, ssrOption)
+	if err != nil {
+		return err
+	}
+	outbound.Type = C.TypeShadowsocksR
+	outbound.Options = &option.ShadowsocksROutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     ssrOption.Server,
+			ServerPort: uint16(ssrOption.Port),
+		},
+		Password:      ssrOption.Password,
+		Method:        clashShadowsocksCipher(ssrOption.Cipher),
+		Protocol:      ssrOption.Protocol,
+		ProtocolParam: ssrOption.ProtocolParam,
+		Obfs:          ssrOption.Obfs,
+		ObfsParam:     ssrOption.ObfsParam,
+		Network:       clashNetworks(ssrOption.UDP),
+	}
+	return nil
+}
+
+func parseTrojan(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	trojanOption := &clash_outbound.TrojanOption{}
+	err := decoder.Decode(proxyMapping, trojanOption)
+	if err != nil {
+		return err
+	}
+	outbound.Type = C.TypeTrojan
+	outbound.Options = &option.TrojanOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     trojanOption.Server,
+			ServerPort: uint16(trojanOption.Port),
+		},
+		Password: trojanOption.Password,
+		OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
+			TLS: &option.OutboundTLSOptions{
+				Enabled:    true,
+				ALPN:       trojanOption.ALPN,
+				ServerName: trojanOption.SNI,
+				Insecure:   trojanOption.SkipCertVerify,
+			},
+		},
+		Transport: clashTransport(trojanOption.Network, clash_outbound.HTTPOptions{}, clash_outbound.HTTP2Options{}, trojanOption.GrpcOpts, trojanOption.WSOpts),
+		Network:   clashNetworks(trojanOption.UDP),
+	}
+	return nil
+}
+
+func parseVmess(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	vmessOption := &clash_outbound.VmessOption{}
+	err := decoder.Decode(proxyMapping, vmessOption)
+	if err != nil {
+		return err
+	}
+	outbound.Type = C.TypeVMess
+	outbound.Options = &option.VMessOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     vmessOption.Server,
+			ServerPort: uint16(vmessOption.Port),
+		},
+		UUID:     vmessOption.UUID,
+		Security: vmessOption.Cipher,
+		AlterId:  vmessOption.AlterID,
+		OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
+			TLS: &option.OutboundTLSOptions{
+				Enabled:    vmessOption.TLS,
+				ServerName: vmessOption.ServerName,
+				Insecure:   vmessOption.SkipCertVerify,
+			},
+		},
+		Transport: clashTransport(vmessOption.Network, vmessOption.HTTPOpts, vmessOption.HTTP2Opts, vmessOption.GrpcOpts, vmessOption.WSOpts),
+		Network:   clashNetworks(vmessOption.UDP),
+	}
+	return nil
+}
+
+func parseSocks5(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	socks5Option := &clash_outbound.Socks5Option{}
+	err := decoder.Decode(proxyMapping, socks5Option)
+	if err != nil {
+		return err
+	}
+
+	if socks5Option.TLS {
+		return E.New("unsupported option: socks5 with TLS")
+	}
+
+	outbound.Type = C.TypeSOCKS
+	outbound.Options = &option.SOCKSOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     socks5Option.Server,
+			ServerPort: uint16(socks5Option.Port),
+		},
+		Username: socks5Option.UserName,
+		Password: socks5Option.Password,
+		Network:  clashNetworks(socks5Option.UDP),
+	}
+	return nil
+}
+
+func parseHttp(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	httpOption := &clash_outbound.HttpOption{}
+	err := decoder.Decode(proxyMapping, httpOption)
+	if err != nil {
+		return err
+	}
+
+	if httpOption.TLS {
+		return E.New("unsupported option: http with TLS")
+	}
+
+	outbound.Type = C.TypeHTTP
+	outbound.Options = &option.HTTPOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     httpOption.Server,
+			ServerPort: uint16(httpOption.Port),
+		},
+		Username: httpOption.UserName,
+		Password: httpOption.Password,
+	}
+	return nil
+}
+
+func parseAnyTLS(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	anytlsOption := &clash_outbound.AnyTLSOption{}
+	err := decoder.Decode(proxyMapping, anytlsOption)
+	if err != nil {
+		return err
+	}
+	outbound.Type = C.TypeAnyTLS
+	outbound.Options = &option.AnyTLSOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     anytlsOption.Server,
+			ServerPort: uint16(anytlsOption.Port),
+		},
+		OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
+			TLS: &option.OutboundTLSOptions{
+				Enabled:    true,
+				ServerName: anytlsOption.SNI,
+				Insecure:   anytlsOption.SkipCertVerify,
+				ALPN:       anytlsOption.ALPN,
+				UTLS: &option.OutboundUTLSOptions{
+					Enabled:     anytlsOption.ClientFingerprint != "",
+					Fingerprint: anytlsOption.ClientFingerprint,
+				},
+			},
+		},
+		Password:                 anytlsOption.Password,
+		IdleSessionCheckInterval: badoption.Duration(time.Duration(anytlsOption.IdleSessionCheckInterval) * time.Second),
+		IdleSessionTimeout:       badoption.Duration(time.Duration(anytlsOption.IdleSessionTimeout) * time.Second),
+		MinIdleSession:           anytlsOption.MinIdleSession,
+	}
+	return nil
 }
 
 func clashShadowsocksCipher(cipher string) string {

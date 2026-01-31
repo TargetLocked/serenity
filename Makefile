@@ -11,6 +11,7 @@ PREFIX ?= $(shell go env GOPATH)
 .PHONY: release docs upgrade diff push upgrade-mod
 
 build:
+	export GOTOOLCHAIN=local && \
 	go build $(MAIN_PARAMS) $(MAIN)
 
 install:
