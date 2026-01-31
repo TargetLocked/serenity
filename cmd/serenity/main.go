@@ -8,6 +8,7 @@ import (
 	"github.com/sagernet/sing-box/include"
 	_ "github.com/sagernet/sing-box/include"
 	"github.com/sagernet/sing-box/log"
+	boxOption "github.com/sagernet/sing-box/option"
 
 	"github.com/spf13/cobra"
 )
@@ -55,5 +56,5 @@ func preRun(cmd *cobra.Command, args []string) {
 	if len(configPaths) == 0 && len(configDirectories) == 0 {
 		configPaths = append(configPaths, "config.json")
 	}
-	globalCtx = include.Context(context.Background())
+	globalCtx = boxOption.ContextWithDontUpgrade(include.Context(context.Background()))
 }
