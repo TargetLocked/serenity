@@ -246,7 +246,8 @@ func (t *Template) renderRoute(metadata M.Metadata, options *option.Options) err
 	}
 	if metadata.Version != nil && metadata.Version.GreaterThanOrEqual(semver.ParseVersion("1.12.0-alpha.1")) {
 		options.Route.DefaultDomainResolver = &option.DomainResolveOptions{
-			Server: DNSLocalTag,
+			Server:   DNSLocalTag,
+			Strategy: option.DomainStrategy(C.DomainStrategyPreferIPv4),
 		}
 	}
 	return nil
