@@ -18,7 +18,7 @@ require (
 	golang.org/x/net v0.43.0
 )
 
-replace github.com/sagernet/sing-box => github.com/targetlocked/sing-box v0.0.0-20260130230053-5d0da5983d86
+replace github.com/sagernet/sing-box => github.com/targetlocked/sing-box v0.0.0-20260215152341-f7d28214ebb6
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

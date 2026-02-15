@@ -335,8 +335,8 @@ github.com/tailscale/peercred v0.0.0-20250107143737-35a0c7bd7edc h1:24heQPtnFR+y
 github.com/tailscale/peercred v0.0.0-20250107143737-35a0c7bd7edc/go.mod h1:f93CXfllFsO9ZQVq+Zocb1Gp4G5Fz0b0rXHLOzt/Djc=
 github.com/tailscale/web-client-prebuilt v0.0.0-20250124233751-d4cd19a26976 h1:UBPHPtv8+nEAy2PD8RyAhOYvau1ek0HDJqLS/Pysi14=
 github.com/tailscale/web-client-prebuilt v0.0.0-20250124233751-d4cd19a26976/go.mod h1:agQPE6y6ldqCOui2gkIh7ZMztTkIQKH049tv8siLuNQ=
-github.com/targetlocked/sing-box v0.0.0-20260130230053-5d0da5983d86 h1:ClhdV8CJrkRSbAtsnKKR3ZuattLpQ7AjDtjOqAtsR8k=
-github.com/targetlocked/sing-box v0.0.0-20260130230053-5d0da5983d86/go.mod h1:SMho8nFgnfpBB2OOoZdmXfZwFBGW5BiwKTiJUS+rW5s=
+github.com/targetlocked/sing-box v0.0.0-20260215152341-f7d28214ebb6 h1:5j0JWEPKgmIem9ZscprRFKks8y/HQyj6uoHQTpsh8F8=
+github.com/targetlocked/sing-box v0.0.0-20260215152341-f7d28214ebb6/go.mod h1:SMho8nFgnfpBB2OOoZdmXfZwFBGW5BiwKTiJUS+rW5s=
 github.com/tc-hib/winres v0.2.1 h1:YDE0FiP0VmtRaDn7+aaChp1KiF4owBiJa5l964l5ujA=
 github.com/tc-hib/winres v0.2.1/go.mod h1:C/JaNhH3KBvhNKVbvdlDWkbMDO9H4fKKDaN7/07SSuk=
 github.com/tklauser/go-sysconf v0.3.12 h1:0QaGUFOdQaIVdPgfITYzaTegZvdCjmYO52cSFAEVmqU=
