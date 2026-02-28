@@ -44,6 +44,7 @@ func (t *Template) renderDNS(ctx context.Context, metadata M.Metadata, options *
 				Strategy:         domainStrategy,
 				IndependentCache: t.EnableFakeIP,
 			},
+			Final: DNSDefaultTag,
 		},
 	}
 	dnsDefault := t.DNS
