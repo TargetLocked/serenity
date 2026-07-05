@@ -31,6 +31,7 @@ func ParseClashSubscription(_ context.Context, content string) ([]option.Outboun
 		constant.ShadowsocksR: parseShadowsocksR,
 		constant.Trojan:       parseTrojan,
 		constant.Vmess:        parseVmess,
+		constant.Vless:        parseVless,
 		constant.Socks5:       parseSocks5,
 		constant.Http:         parseHttp,
 		constant.AnyTLS:       parseAnyTLS,
@@ -123,6 +124,10 @@ func parseTrojan(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping 
 				ALPN:       trojanOption.ALPN,
 				ServerName: trojanOption.SNI,
 				Insecure:   trojanOption.SkipCertVerify,
+				UTLS: &option.OutboundUTLSOptions{
+					Enabled:     trojanOption.ClientFingerprint != "",
+					Fingerprint: trojanOption.ClientFingerprint,
+				},
 			},
 		},
 		Transport: clashTransport(trojanOption.Network, clash_outbound.HTTPOptions{}, clash_outbound.HTTP2Options{}, trojanOption.GrpcOpts, trojanOption.WSOpts),
@@ -143,18 +148,72 @@ func parseVmess(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping m
 			Server:     vmessOption.Server,
 			ServerPort: uint16(vmessOption.Port),
 		},
-		UUID:     vmessOption.UUID,
-		Security: vmessOption.Cipher,
-		AlterId:  vmessOption.AlterID,
+		UUID:                vmessOption.UUID,
+		Security:            vmessOption.Cipher,
+		AlterId:             vmessOption.AlterID,
+		AuthenticatedLength: vmessOption.AuthenticatedLength,
 		OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
 			TLS: &option.OutboundTLSOptions{
 				Enabled:    vmessOption.TLS,
 				ServerName: vmessOption.ServerName,
 				Insecure:   vmessOption.SkipCertVerify,
+				ALPN:       vmessOption.ALPN,
+				UTLS: &option.OutboundUTLSOptions{
+					Enabled:     vmessOption.ClientFingerprint != "",
+					Fingerprint: vmessOption.ClientFingerprint,
+				},
 			},
 		},
-		Transport: clashTransport(vmessOption.Network, vmessOption.HTTPOpts, vmessOption.HTTP2Opts, vmessOption.GrpcOpts, vmessOption.WSOpts),
-		Network:   clashNetworks(vmessOption.UDP),
+		PacketEncoding: vmessOption.PacketEncoding,
+		Transport:      clashTransport(vmessOption.Network, vmessOption.HTTPOpts, vmessOption.HTTP2Opts, vmessOption.GrpcOpts, vmessOption.WSOpts),
+		Network:        clashNetworks(vmessOption.UDP),
+	}
+	return nil
+}
+
+func parseVless(decoder *structure.Decoder, proxy constant.Proxy, proxyMapping map[string]any, outbound *option.Outbound) error {
+	vlessOption := &clash_outbound.VlessOption{}
+	err := decoder.Decode(proxyMapping, vlessOption)
+	if err != nil {
+		return err
+	}
+	tlsOptions := &option.OutboundTLSOptions{
+		Enabled:    vlessOption.TLS,
+		ServerName: vlessOption.ServerName,
+		Insecure:   vlessOption.SkipCertVerify,
+		ALPN:       vlessOption.ALPN,
+		UTLS: &option.OutboundUTLSOptions{
+			Enabled:     vlessOption.ClientFingerprint != "",
+			Fingerprint: vlessOption.ClientFingerprint,
+		},
+	}
+	if vlessOption.RealityOpts.PublicKey != "" {
+		tlsOptions.Reality = &option.OutboundRealityOptions{
+			Enabled:   true,
+			PublicKey: vlessOption.RealityOpts.PublicKey,
+			ShortID:   vlessOption.RealityOpts.ShortID,
+		}
+	}
+	outbound.Type = C.TypeVLESS
+	clashPacketEncoding := func(s string) *string {
+		if s == "" {
+			return nil
+		}
+		return &s
+	}
+	outbound.Options = &option.VLESSOutboundOptions{
+		ServerOptions: option.ServerOptions{
+			Server:     vlessOption.Server,
+			ServerPort: uint16(vlessOption.Port),
+		},
+		UUID:           vlessOption.UUID,
+		Flow:           vlessOption.Flow,
+		PacketEncoding: clashPacketEncoding(vlessOption.PacketEncoding),
+		OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
+			TLS: tlsOptions,
+		},
+		Transport: clashTransport(vlessOption.Network, vlessOption.HTTPOpts, vlessOption.HTTP2Opts, vlessOption.GrpcOpts, vlessOption.WSOpts),
+		Network:   clashNetworks(vlessOption.UDP),
 	}
 	return nil
 }
